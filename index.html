@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MarketIA - Marketplace</title>
+  <meta name="description" content="Marketplace MarketIA inspirado na OLX." />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #0b1120;
+      --panel: rgba(15, 23, 42, 0.82);
+      --card: rgba(255, 255, 255, 0.94);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --ink: #0f172a;
+      --brand: #22c55e;
+      --brand-2: #14b8a6;
+      --accent: #f97316;
+      --shadow: 0 20px 45px rgba(2, 6, 23, 0.32);
+      --shadow-soft: 0 14px 30px rgba(2, 6, 23, 0.14);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --max: 1200px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.22), transparent 26%),
+        radial-gradient(circle at top right, rgba(20, 184, 166, 0.22), transparent 30%),
+        linear-gradient(180deg, #0b1120 0%, #111827 52%, #0f172a 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    button, input { font: inherit; }
+    button { border: 0; cursor: pointer; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(18px);
+      background: rgba(15, 23, 42, 0.66);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .topbar-inner, .shell {
+      width: min(100%, var(--max));
+      margin: 0 auto;
+      padding: 12px 14px;
+    }
+
+    .topbar-inner {
+      display: grid;
+      gap: 12px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      font-size: 1.25rem;
+    }
+
+    .brand-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      box-shadow: 0 16px 28px rgba(34, 197, 94, 0.28);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .searchbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 12px;
+      border-radius: 999px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .searchbar i { color: #cbd5e1; }
+    .searchbar input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      color: white;
+      background: transparent;
+      min-width: 0;
+    }
+    .searchbar input::placeholder { color: #94a3b8; }
+
+    .action-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 15px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.09);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+    .action-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #fb7185, #f97316);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 800;
+      box-shadow: 0 10px 18px rgba(249, 115, 22, 0.35);
+    }
+
+    .user-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      font-weight: 700;
+    }
+
+    .user-meta {
+      display: grid;
+      line-height: 1.1;
+    }
+    .user-meta small { color: #cbd5e1; }
+
+    .ghost-btn {
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .page {
+      display: grid;
+      gap: 18px;
+      margin-top: 12px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .section-head h2 { margin: 0; font-size: 1.05rem; letter-spacing: -0.03em; }
+    .section-head p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+    .category-bar {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .category-bar::-webkit-scrollbar { display: none; }
+
+    .chip {
+      flex: 0 0 auto;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+    .chip.active,
+    .chip:hover {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(20, 184, 166, 0.95));
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 16px 24px rgba(34, 197, 94, 0.22);
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .product-card {
+      background: var(--card);
+      color: var(--ink);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      min-height: 150px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 24px 36px rgba(2, 6, 23, 0.18);
+    }
+
+    .product-image {
+      min-height: 100%;
+      overflow: hidden;
+    }
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .product-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .product-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+    .product-name {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.25;
+      letter-spacing: -0.03em;
+    }
+    .product-price {
+      margin: 0;
+      color: #0f766e;
+      font-weight: 900;
+      font-size: 1.15rem;
+      white-space: nowrap;
+    }
+
+    .product-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: #475569;
+      font-size: 0.88rem;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.06);
+      color: #334155;
+    }
+
+    .card-actions {
+      margin-top: auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .add-btn {
+      width: 100%;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: white;
+      padding: 11px 14px;
+      border-radius: 14px;
+      font-weight: 700;
+      box-shadow: 0 18px 28px rgba(34, 197, 94, 0.22);
+      transition: transform 0.18s ease, filter 0.18s ease;
+    }
+    .add-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+
+    .empty-state {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px dashed rgba(148, 163, 184, 0.28);
+      color: #cbd5e1;
+      border-radius: var(--radius-lg);
+      padding: 26px 18px;
+      text-align: center;
+      display: none;
+    }
+    .empty-state i {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #94a3b8;
+    }
+
+    .cart-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.58);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 40;
+    }
+    .cart-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .cart-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(100%, 420px);
+      height: 100vh;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.94));
+      border-left: 1px solid rgba(148, 163, 184, 0.15);
+      transform: translateX(100%);
+      transition: transform 0.24s ease;
+      z-index: 50;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      box-shadow: -24px 0 40px rgba(2, 6, 23, 0.34);
+    }
+    .cart-panel.open { transform: translateX(0); }
+    .cart-head,
+    .cart-foot {
+      padding: 16px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+    }
+    .cart-foot {
+      border-bottom: 0;
+      border-top: 1px solid rgba(148, 163, 184, 0.14);
+      display: grid;
+      gap: 10px;
+    }
+    .cart-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .cart-head h3 { margin: 0; font-size: 1.05rem; }
+    .close-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .cart-list {
+      padding: 8px 16px 16px;
+      overflow: auto;
+      display: grid;
+      gap: 12px;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      animation: fadeUp 0.25s ease both;
+    }
+    .cart-item img {
+      width: 58px;
+      height: 58px;
+      object-fit: cover;
+      border-radius: 14px;
+    }
+    .cart-item h4 {
+      margin: 0 0 4px;
+      font-size: 0.96rem;
+      line-height: 1.2;
+      color: white;
+    }
+    .cart-item p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 0.9rem;
+    }
+
+    .cart-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .qty-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 6px;
+      border-radius: 999px;
+    }
+    .qty-control button {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+    }
+    .qty-control span {
+      min-width: 18px;
+      text-align: center;
+      font-weight: 700;
+      color: white;
+    }
+    .remove-btn {
+      background: transparent;
+      color: #fca5a5;
+      padding: 6px 10px;
+      border-radius: 10px;
+    }
+
+    .summary {
+      display: grid;
+      gap: 8px;
+      color: white;
+    }
+    .summary-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.98rem;
+    }
+    .summary-total {
+      font-size: 1.1rem;
+      font-weight: 900;
+    }
+    .checkout-btn {
+      background: linear-gradient(135deg, #f97316, #fb7185);
+      color: white;
+      padding: 13px 16px;
+      border-radius: 14px;
+      font-weight: 800;
+      box-shadow: 0 16px 24px rgba(249, 115, 22, 0.24);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%) translateY(120%);
+      background: rgba(15, 23, 42, 0.94);
+      color: white;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      box-shadow: var(--shadow);
+      padding: 12px 16px;
+      border-radius: 999px;
+      z-index: 60;
+      opacity: 0;
+      transition: transform 0.22s ease, opacity 0.22s ease;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .pulse { animation: pulse 0.22s ease; }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (min-width: 720px) {
+      .topbar-inner {
+        grid-template-columns: 1fr auto;
+        align-items: center;
+      }
+      .products {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .shell { padding-inline: 18px; }
+      .products { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .product-card { grid-template-columns: 1fr; }
+      .product-image { min-height: 190px; }
+      .product-body { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-row">
+        <a class="brand" href="#" aria-label="MarketIA">
+          <span class="brand-badge"><i class="fa-solid fa-bag-shopping"></i></span>
+          <span>MarketIA</span>
+        </a>
+
+        <div class="header-actions">
+          <button class="action-btn" id="cartToggle" aria-label="Abrir carrinho">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="cart-badge" id="cartBadge">0</span>
+          </button>
+
+          <div class="user-box" aria-live="polite">
+            <div class="avatar" id="userAvatar">M</div>
+            <div class="user-meta">
+              <strong id="userName">Mariana Souza</strong>
+              <small id="userStatus">Conectada</small>
+            </div>
+            <button class="ghost-btn" id="authToggle" type="button">Logout</button>
+          </div>
+        </div>
+      </div>
+
+      <label class="searchbar" for="searchInput" aria-label="Buscar produtos">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="searchInput" type="search" placeholder="Buscar produto, categoria ou cidade..." autocomplete="off" />
+      </label>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="page">
+      <div class="section-head">
+        <div>
+          <p>Categorias</p>
+          <h2>Menu</h2>
+        </div>
+        <p id="resultsLabel">Mostrando 12 produtos</p>
+      </div>
+
+      <nav class="category-bar" id="categoryBar" aria-label="Categorias"></nav>
+
+      <div class="empty-state" id="emptyState">
+        <i class="fa-regular fa-face-frown"></i>
+        <h3 style="margin: 0 0 6px;">Nenhum produto encontrado</h3>
+        <p style="margin: 0;">Tente outra busca ou selecione uma categoria diferente.</p>
+      </div>
+
+      <div class="products" id="productsGrid"></div>
+    </section>
+  </main>
+
+  <div class="cart-overlay" id="cartOverlay" hidden></div>
+  <aside class="cart-panel" id="cartPanel" aria-label="Carrinho de compras" aria-hidden="true">
+    <div class="cart-head">
+      <div>
+        <h3>Seu carrinho</h3>
+        <p style="margin: 4px 0 0; color: #94a3b8;" id="cartSubtitle">0 itens adicionados</p>
+      </div>
+      <button class="close-btn" id="cartClose" aria-label="Fechar carrinho">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="cart-list" id="cartList"></div>
+
+    <div class="cart-foot">
+      <div class="summary">
+        <div class="summary-line">
+          <span>Itens</span>
+          <strong id="cartQty">0</strong>
+        </div>
+        <div class="summary-line summary-total">
+          <span>Total</span>
+          <strong id="cartTotal">R$ 0,00</strong>
+        </div>
+      </div>
+      <button class="checkout-btn" type="button" id="checkoutBtn">Finalizar compra</button>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const products = [
+      { id: 1, name: "Sofá Modular Zen", price: 2899.9, city: "São Paulo, SP", category: "Casa", image: "images/sofa.png" },
+      { id: 2, name: "Notebook Slim Pro", price: 4799, city: "Campinas, SP", category: "Eletrônicos", image: "images/notebook.jpg" },
+      { id: 3, name: "Bike Urbana Flow", price: 1990, city: "Curitiba, PR", category: "Esportes", image: "images/bike.jpeg" },
+      { id: 4, name: "Mesa Office Clean", price: 799.9, city: "Belo Horizonte, MG", category: "Casa", image: "images/mesa.jpg" },
+      { id: 5, name: "Smart TV 50\" Vision", price: 2499.9, city: "Recife, PE", category: "Eletrônicos", image: "images/notebook.jpg" },
+      { id: 6, name: "Tênis Run Max", price: 459.9, city: "Porto Alegre, RS", category: "Moda", image: "images/sofa.png" },
+      { id: 7, name: "Cadeira Gamer Pulse", price: 1199.9, city: "Rio de Janeiro, RJ", category: "Casa", image: "images/sofa.png" },
+      { id: 8, name: "Câmera Mirror Pro", price: 3290, city: "Florianópolis, SC", category: "Fotografia", image: "images/camera.png" },
+      { id: 9, name: "Violão Acústico One", price: 699, city: "Salvador, BA", category: "Música", image: "images/violao.jpg" },
+      { id: 10, name: "Bike Infantil Joy", price: 639.9, city: "Manaus, AM", category: "Esportes", image: "images/bike.jpeg" },
+      { id: 11, name: "Aspirador Turbo Home", price: 899.9, city: "Goiânia, GO", category: "Casa", image: "images/mesa.jpg" },
+      { id: 12, name: "Console Game X", price: 3599, city: "Fortaleza, CE", category: "Games", image: "images/notebook.jpg" }
+    ];
+
+    const state = {
+      search: "",
+      category: "Todas",
+      cart: loadCart(),
+      loggedIn: loadAuth()
+    };
+
+    const categories = ["Todas", ...new Set(products.map((item) => item.category))];
+    const els = {
+      categoryBar: document.getElementById("categoryBar"),
+      productsGrid: document.getElementById("productsGrid"),
+      emptyState: document.getElementById("emptyState"),
+      searchInput: document.getElementById("searchInput"),
+      resultsLabel: document.getElementById("resultsLabel"),
+      cartBadge: document.getElementById("cartBadge"),
+      cartPanel: document.getElementById("cartPanel"),
+      cartOverlay: document.getElementById("cartOverlay"),
+      cartToggle: document.getElementById("cartToggle"),
+      cartClose: document.getElementById("cartClose"),
+      cartList: document.getElementById("cartList"),
+      cartQty: document.getElementById("cartQty"),
+      cartTotal: document.getElementById("cartTotal"),
+      cartSubtitle: document.getElementById("cartSubtitle"),
+      toast: document.getElementById("toast"),
+      authToggle: document.getElementById("authToggle"),
+      userName: document.getElementById("userName"),
+      userStatus: document.getElementById("userStatus"),
+      userAvatar: document.getElementById("userAvatar"),
+      checkoutBtn: document.getElementById("checkoutBtn")
+    };
+
+    const userProfile = { name: "Mariana Souza" };
+
+    function money(value) {
+      return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+    }
+
+    function slugify(text) {
+      return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function loadCart() {
+      try { return JSON.parse(localStorage.getItem("marketia_cart") || "[]"); }
+      catch { return []; }
+    }
+
+    function saveCart() {
+      localStorage.setItem("marketia_cart", JSON.stringify(state.cart));
+    }
+
+    function loadAuth() {
+      try { return JSON.parse(localStorage.getItem("marketia_auth") || "true"); }
+      catch { return true; }
+    }
+
+    function saveAuth() {
+      localStorage.setItem("marketia_auth", JSON.stringify(state.loggedIn));
+    }
+
+    function updateAuthUI() {
+      const connected = state.loggedIn;
+      els.userName.textContent = connected ? userProfile.name : "Visitante";
+      els.userStatus.textContent = connected ? "Conectada" : "Desconectada";
+      els.userAvatar.textContent = (connected ? userProfile.name : "V").split(" ").map((part) => part[0]).join("").slice(0, 2);
+      els.authToggle.textContent = connected ? "Logout" : "Login";
+    }
+
+    function buildCategories() {
+      els.categoryBar.innerHTML = categories.map((category) => `
+        <button class="chip ${category === state.category ? "active" : ""}" data-category="${category}" type="button">
+          ${category}
+        </button>
+      `).join("");
+    }
+
+    function filteredProducts() {
+      const term = slugify(state.search.trim());
+      return products.filter((product) => {
+        const matchesCategory = state.category === "Todas" || product.category === state.category;
+        const haystack = slugify([product.name, product.city, product.category].join(" "));
+        return matchesCategory && (!term || haystack.includes(term));
+      });
+    }
+
+    function renderProducts() {
+      const list = filteredProducts();
+      els.resultsLabel.textContent = list.length === 1 ? "1 produto encontrado" : `${list.length} produtos encontrados`;
+      els.emptyState.style.display = list.length ? "none" : "block";
+
+      els.productsGrid.innerHTML = list.map((product) => `
+        <article class="product-card" data-id="${product.id}">
+          <div class="product-image">
+            <img src="${product.image}" alt="${product.name}" loading="lazy" />
+          </div>
+          <div class="product-body">
+            <div class="product-top">
+              <div>
+                <h3 class="product-name">${product.name}</h3>
+                <div class="product-meta" style="margin-top: 8px;">
+                  <span class="tag"><i class="fa-solid fa-location-dot"></i> ${product.city}</span>
+                  <span class="tag"><i class="fa-solid fa-tag"></i> ${product.category}</span>
+                </div>
+              </div>
+              <p class="product-price">${money(product.price)}</p>
+            </div>
+            <div class="card-actions">
+              <button class="add-btn" type="button" data-add="${product.id}">
+                <i class="fa-solid fa-plus"></i> Adicionar
+              </button>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function cartCount() {
+      return state.cart.reduce((sum, item) => sum + item.qty, 0);
+    }
+
+    function cartTotal() {
+      return state.cart.reduce((sum, item) => {
+        const product = products.find((p) => p.id === item.id);
+        return sum + (product ? product.price * item.qty : 0);
+      }, 0);
+    }
+
+    function syncCartUI() {
+      const count = cartCount();
+      els.cartBadge.textContent = count;
+      els.cartQty.textContent = count;
+      els.cartTotal.textContent = money(cartTotal());
+      els.cartSubtitle.textContent = count === 1 ? "1 item adicionado" : `${count} itens adicionados`;
+
+      if (!state.cart.length) {
+        els.cartList.innerHTML = `
+          <div style="padding: 24px 8px; text-align: center; color: #cbd5e1;">
+            <i class="fa-solid fa-bag-shopping" style="font-size: 2rem; margin-bottom: 10px; color: #94a3b8;"></i>
+            <p style="margin: 0;">Seu carrinho está vazio.</p>
+          </div>
+        `;
+        return;
+      }
+
+      els.cartList.innerHTML = state.cart.map((item) => {
+        const product = products.find((p) => p.id === item.id);
+        if (!product) return "";
+        return `
+          <article class="cart-item">
+            <img src="${product.image}" alt="${product.name}" />
+            <div>
+              <h4>${product.name}</h4>
+              <p>${money(product.price)} • ${product.city}</p>
+              <div class="cart-row">
+                <div class="qty-control">
+                  <button type="button" data-dec="${product.id}" aria-label="Diminuir quantidade">−</button>
+                  <span>${item.qty}</span>
+                  <button type="button" data-inc="${product.id}" aria-label="Aumentar quantidade">+</button>
+                </div>
+                <button class="remove-btn" type="button" data-remove="${product.id}">Remover</button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => els.toast.classList.remove("show"), 1800);
+    }
+
+    function addToCart(id) {
+      const existing = state.cart.find((item) => item.id === id);
+      if (existing) existing.qty += 1;
+      else state.cart.push({ id, qty: 1 });
+      saveCart();
+      syncCartUI();
+      els.cartBadge.classList.add("pulse");
+      setTimeout(() => els.cartBadge.classList.remove("pulse"), 220);
+      showToast("Produto adicionado ao carrinho");
+    }
+
+    function updateQty(id, delta) {
+      const item = state.cart.find((entry) => entry.id === id);
+      if (!item) return;
+      item.qty += delta;
+      state.cart = state.cart.filter((entry) => entry.qty > 0);
+      saveCart();
+      syncCartUI();
+    }
+
+    function removeItem(id) {
+      state.cart = state.cart.filter((item) => item.id !== id);
+      saveCart();
+      syncCartUI();
+      showToast("Item removido");
+    }
+
+    function openCart() {
+      els.cartPanel.classList.add("open");
+      els.cartOverlay.hidden = false;
+      requestAnimationFrame(() => els.cartOverlay.classList.add("open"));
+      els.cartPanel.setAttribute("aria-hidden", "false");
+    }
+
+    function closeCart() {
+      els.cartPanel.classList.remove("open");
+      els.cartOverlay.classList.remove("open");
+      els.cartPanel.setAttribute("aria-hidden", "true");
+      setTimeout(() => { els.cartOverlay.hidden = true; }, 200);
+    }
+
+    function toggleAuth() {
+      state.loggedIn = !state.loggedIn;
+      saveAuth();
+      updateAuthUI();
+      showToast(state.loggedIn ? "Login efetuado" : "Logout realizado");
+    }
+
+    els.categoryBar.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-category]");
+      if (!button) return;
+      state.category = button.dataset.category;
+      buildCategories();
+      renderProducts();
+    });
+
+    els.searchInput.addEventListener("input", (event) => {
+      state.search = event.target.value;
+      renderProducts();
+    });
+
+    els.productsGrid.addEventListener("click", (event) => {
+      const addBtn = event.target.closest("[data-add]");
+      if (addBtn) addToCart(Number(addBtn.dataset.add));
+    });
+
+    els.cartList.addEventListener("click", (event) => {
+      const inc = event.target.closest("[data-inc]");
+      const dec = event.target.closest("[data-dec]");
+      const remove = event.target.closest("[data-remove]");
+      if (inc) updateQty(Number(inc.dataset.inc), 1);
+      if (dec) updateQty(Number(dec.dataset.dec), -1);
+      if (remove) removeItem(Number(remove.dataset.remove));
+    });
+
+    els.cartToggle.addEventListener("click", openCart);
+    els.cartClose.addEventListener("click", closeCart);
+    els.cartOverlay.addEventListener("click", closeCart);
+    els.authToggle.addEventListener("click", toggleAuth);
+    els.checkoutBtn.addEventListener("click", () => showToast("Compra simulada concluída"));
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeCart();
+    });
+
+    buildCategories();
+    updateAuthUI();
+    renderProducts();
+    syncCartUI();
+  </script>
+</body>
+</html>
