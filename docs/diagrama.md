@@ -6,21 +6,34 @@ classDiagram
         id
         nome
         email
+        telefone
+        cidade
+        criadoEm
     }
 
     class Produto {
         id
         nome
         preco
+        categoria
+        cidade
+        imagemUrl
+        disponivel
     }
 
     class Pedido {
         id
-        data
+        usuarioId
+        produtoId
+        quantidade
+        precoUnitario
+        subtotal
+        status
+        criadoEm
     }
 
     Usuario "1" --> "0..*" Pedido
-    Pedido "1" --> "1..*" Produto
+    Produto "1" --> "0..*" Pedido
 ```
 
 ```mermaid
